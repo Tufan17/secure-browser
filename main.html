@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search</title>
+</head>
+<body>
+    <button id="newPageCamera" >Yeni Sayfa</button>
+    <div class="d-flex" style="margin: 10px 30px">
+        <input class="form-control me-2" type="text" name="searchText" id="searchText" placeholder="Search" >
+        <button class="btn btn-outline-success" id="searchBtn" type="submit">Search</button>
+    </div>
+      <div>
+        <button id="sendBtn1" class="btn btn-outline-success" type="submit" style="margin: 20px;">1. Ekran</button>
+        <button id="sendBtn2" class="btn btn-outline-success" type="submit">2. Ekran</button>
+      
+      </div>
+      <!-- <div>
+        <div id="kutu1" style="height: 300px; width: 300px; border:1px solid black; margin-left: 30px; float: left;">
+        </div>
+        <div id="kutu2" style="height: 300px; width: 300px; border:1px solid black; margin-right: 30px; float: right;"></div>
+          
+      </div> -->
+
+      <iframe id="view1" src="https://www.bing.com/" width="48%" frameborder="1" height="800px" name="view1"></iframe>
+      <iframe id="view2" src="https://www.bing.com/" width="48%" frameborder="1" height="800px" name="view2"></iframe>
+
+      <figure>
+        <figcaption>Müzik Dinle</figcaption>
+        <audio
+        controls
+            id="audioPlay"
+            src="assets/Einaudi - Experience (Cover).mp3">
+        
+                <code>audio</code> 
+        </audio>
+        <button id="start" onclick="startAudio()">Başla</button>
+        <button id="arti" onclick="voice(1)">+</button>
+        <button id="eksi" onclick="voice(0)">-</button>
+
+    </figure>
+
+      <div style='position: fixed; bottom: 1%; left: 1%;'>
+        <button id="screen" onclick="minScreen()">Tam Ekrandan Yap</button></div>
+     <div style='position: fixed; bottom: 1%; right:1%;'>
+        <button id="lockedKey" onclick="lockedKeyboard()">klavyeyi kilitle</button></div>
+              
+
+</body>
+
+
+<script>
+  const { ipcRenderer } = require("electron");
+  const electron=require("electron");
+
+  let sendBtn1=document.querySelector("#sendBtn1");
+  let sendBtn2=document.querySelector("#sendBtn2");
+  let searchBtn=document.querySelector("#searchBtn");
+  let inputValue=document.querySelector("#searchText");
+  let newPageCamera=document.querySelector("#newPageCamera");
+  let lockedKey=document.querySelector("#lockedKey");
+
+  let audioplayer=true;
+
+  let page;
+  let lockedbool=true;
+  var audio = document.getElementById("audioPlay");
+
+
+            newPageCamera.addEventListener("click",()=>{
+                
+             ipcRenderer.send("key:new",true);
+            });
+
+
+
+
+function startAudio(){
+        if(audioplayer){
+            audio.play();
+            document.getElementById("start").innerHTML="Durdur";
+
+        }else{
+            audio.pause();
+            document.getElementById("start").innerHTML="Başlat";
+        }
+        audioplayer=!audioplayer;
+    }
+    var a=10;
+            function voice(data){
+            if(data==1){
+                a++;
+                console.log("+");
+                audio.volume=a/10;
+            }else{
+                a--;
+                console.log("-");
+                audio.volume=a/10;
+            }
+
+            }
+
+       function lockedKeyboard(){
+           if(lockedbool==true){
+            document.getElementById("lockedKey").innerHTML="klavyeyi aç";
+           
+           }else{
+            document.getElementById("lockedKey").innerHTML="klavyeyi kilitle";
+           
+            
+           }
+           lockedbool=!lockedbool;
+
+           }
+
+
+          lockedKey.addEventListener("click",()=>{
+             tamEkranGec(document.documentElement);
+    
+             ipcRenderer.send("key:locked");
+            });
+
+
+         searchBtn.addEventListener("click",()=>{
+    
+        ipcRenderer.send("key:search",{"page":page, "text":inputValue.value});
+        tamEkranGec(document.documentElement);
+        });
+
+        sendBtn1.addEventListener("click",()=>{
+            tamEkranGec(document.documentElement);
+    
+            ipcRenderer.send("key:1",1);
+        });
+        sendBtn2.addEventListener("click",()=>{
+            tamEkranGec(document.documentElement);
+    
+            ipcRenderer.send("key:2",2);
+        });
+
+        ipcRenderer.on("page",(e,data)=>{
+          
+            console.log(data);
+            page=data;
+            if(data==1){
+                sendBtn1.style.color="#B50000";
+                sendBtn2.style.color="#000000";
+            }else{           
+
+                sendBtn2.style.color="#B50000";
+                sendBtn1.style.color="#000000";
+            }
+    
+        });
+
+        ipcRenderer.on("sk",(e,data)=>{
+
+            if(data["page"]==1){
+                document.getElementById('view1').src = "https://www.bing.com/search?q="+data["text"];
+                sendBtn1.style.color="#B50000";
+                sendBtn2.style.color="#000000";
+            }else if(data["page"]==2){
+                sendBtn2.style.color="#B50000";
+                sendBtn1.style.color="#000000";
+                document.getElementById('view2').src = "https://www.bing.com/search?q="+data["text"];
+
+
+            }
+    
+        });
+
+        ipcRenderer.on("flscrenn",(e,data)=>{
+            
+            setTimeout(() => {
+                console.log("geldi");
+                tamEkranGec(document.documentElement);
+            }, 1000);
+        });
+
+        function tamEkranGec(fScreen) {
+    if
+    (fScreen.requestFullScreen) {
+    fScreen.requestFullScreen();
+    } 
+    else
+     
+    if
+    (fScreen.mozRequestFullScreen) {
+    fScreen.mozRequestFullScreen();
+    } 
+    else
+     
+    if
+    (fScreen.webkitRequestFullScreen) {
+    fScreen.webkitRequestFullScreen();
+    }
+    }
+         function minScreen() {
+           if (!document.fullscreenElement) {
+                document.getElementById('screen').innerHTML="Tam Ekrandan Çık";
+                tamEkranGec(document.documentElement);
+                console.log("sasad");
+           } else {
+                document.getElementById('screen').innerHTML="Tam Ekrandan Yap";
+
+                document.exitFullscreen();
+            }
+    }
+        
+
+      
+
+</script>
+
+
+</html>
