@@ -10,7 +10,11 @@
   
 </head>
 <body>
+    <button id="comeback" ><h1>geri</h1></button>
+
     <div class="main">
+
+
         <video id="video" autoplay width="500px" height="500px"> </video>
         <canvas id="picture"></canvas>
         <button class="startWebCam">Kamerayı aç</button>
@@ -19,4 +23,19 @@
   <script src="https://unpkg.com/webcam-easy@1.0.5/dist/webcam-easy.min.js"></script>
   <script src="app.js"></script>
 </body>
+<script>
+    const { ipcRenderer } = require("electron");
+const electron=require("electron");
+
+let comeback=document.querySelector("#comeback");
+
+comeback.addEventListener("click",()=>{
+    ipcRenderer.send("key:comeback");
+    console.log("buradayımmmmmmm");
+});
+
+
+
+
+</script>
 </html>

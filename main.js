@@ -126,6 +126,15 @@ app.on('ready',()=>{
         );
      });
  
+     ipcMain.on("key:comeback",(err,data)=>{
+        mainWindow.loadURL(
+            url.format({
+                pathname:path.join(__dirname,"main.html"),
+                protocol:"file:",
+                slashes:false,
+            }),
+        );
+     });
 
     ipcMain.on("key:locked",(err,data)=>{
        lockedKey=!lockedKey;
